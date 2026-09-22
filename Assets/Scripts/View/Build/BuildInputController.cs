@@ -1,5 +1,6 @@
 using Game.Core;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Game.Views
 {
@@ -22,7 +23,7 @@ namespace Game.Views
             {
                 var cam = Camera.main;
                 if (cam == null) return;
-
+                if (EventSystem.current.IsPointerOverGameObject()) return;
                 var ray = cam.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(ray, out var hit, 1000f, groundLayer))
                 {

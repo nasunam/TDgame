@@ -21,7 +21,6 @@ namespace Game.Core
         public ProjectileModel ProjectileModel;
         // 2. Services
         public PathService PathService;
-        public TowerConfigService TowerConfigService;
         // 3, View Factory
         public EnemyViewFactory EnemyViewFactory;
         public TowerViewFactory TowerViewFactory;
@@ -34,12 +33,14 @@ namespace Game.Core
         public ProjectileSystem ProjectileSystem;
         public EconomySystem EconomySystem;
         public BuildSystem BuildSystem;
+        public TowerSelectionSystem TowerSelectionSystem;
         // 初始化
         public void Init(
             EnemyView enemyPrefab, Transform enemyRoot,
-            TowerView towerPrefab, Transform towerRoot,
+            Transform towerRoot,
             ProjectileView projectilePrefab, Transform projectileRoot,
-            WaveConfigSO waveConfig)
+            WaveConfigSO waveConfig,
+            TowerCatalogSO towerCatalog)
         {
             Current = this;
             // Models
@@ -52,11 +53,9 @@ namespace Game.Core
             // Services
             PathService = new PathService();
             PathService.BuildFromScene();
-            TowerConfigService = new TowerConfigService();
-            TowerConfigService.RegisterDefaults();
             // View Factories
             EnemyViewFactory = new EnemyViewFactory(enemyPrefab, enemyRoot);
-            TowerViewFactory = new TowerViewFactory(towerPrefab, towerRoot);
+            TowerViewFactory = new TowerViewFactory(towerRoot);
             ProjectileViewFactory = new ProjectileViewFactory(projectilePrefab, projectileRoot);
             // Systems
             EnemySystem = new EnemySystem(this);
@@ -65,7 +64,8 @@ namespace Game.Core
             TowerSystem = new TowerSystem(this);
             ProjectileSystem = new ProjectileSystem(this);
             EconomySystem = new EconomySystem(EconomyModel);
-            BuildSystem = new BuildSystem(this);
+            BuildSystem = new BuildSystem(this, towerCatalog);
+            TowerSelectionSystem = new TowerSelectionSystem(this);
         }
         public void Tick(float dt)
         {
@@ -79,6 +79,7 @@ namespace Game.Core
         {
             CoreSystem?.Dispose();
             EconomySystem?.Dispose();
+            TowerSelectionSystem?.Dispose();
             EventBus.Clear();
             Current = null;
         }

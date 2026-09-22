@@ -8,20 +8,33 @@ namespace Game.Core
 {
     public class TowerViewFactory
     {
-        private readonly TowerView _prefab;
         private readonly Transform _root;
         private readonly Dictionary<int, TowerView> _views = new();
-        public TowerViewFactory(TowerView prefab, Transform root)
+        public TowerViewFactory(Transform root)
         {
-            _prefab = prefab;
             _root = root;
         }
-        public void Spawn(TowerData data)
+        public TowerView Spawn(TowerData data)
         {
-            var v = Object.Instantiate(_prefab, _root);
-            v.Bind(data);
-            _views[data.Id] = v;
+            var prefab = data.Config.ViewPrefab;
+            if (prefab == null)
+            {
+                Debug.LogError($"[TowerViewFactory] {data.Config.Id} 没有配置 ViewPrefab");
+                return null;
+            }
+            var go = Object.Instantiate(prefab, _root);
+            var view = go.GetComponent<TowerView>();
+            if (view == null)
+            {
+                Debug.LogError($"[TowerViewFactory] {prefab.name} 缺少 TowerView 组件");
+                Object.Destroy(go);
+                return null;
+            }
+            view.Bind(data);
+            _views[data.Id] = view;
+            return view;
         }
+        public TowerView Get(int id) => _views.TryGetValue(id, out var v) ? v : null;
         public void Remove(int id)
         {
             if (_views.TryGetValue(id, out var v))

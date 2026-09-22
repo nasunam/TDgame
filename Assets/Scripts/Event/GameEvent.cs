@@ -15,4 +15,10 @@ namespace Game.Events
     public struct WaveClearEvent { public int WaveIndex; }
     public struct AllWavesCompletedEvent { }
     public struct WaveStatusEvent { public int CurrentWaveIndex; public int TotalWaves; public float Countdown; public int EnemiesRemaining; }
+    public struct TowerSelectedEvent { public int TowerId; }
+    public struct TowerDeselectedEvent { }
+    public struct TowerUpgradedEvent { public int TowerId; public int NewLevelIndex; }
+    public struct TowerSoldEvent { public int TowerId; public int Refund; }
+    public struct UiToastEvent { public string Message; }
+    public struct BuildFailedEvent { public string Reason; }
 }

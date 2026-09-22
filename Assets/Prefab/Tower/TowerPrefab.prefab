@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4876392961600810353}
   - component: {fileID: 1383886030034999754}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: TowerPrefab
-  m_TagString: Untagged
+  m_TagString: Tower
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -57,7 +57,7 @@ GameObject:
   - component: {fileID: 3036524541311218191}
   - component: {fileID: 4888134147346057981}
   - component: {fileID: 9089945581176414361}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: TowerView
   m_TagString: Untagged
   m_Icon: {fileID: 0}

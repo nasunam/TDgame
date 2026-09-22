@@ -12,7 +12,6 @@ namespace Game.Core
 
         [Header("Prefabs")]
         [SerializeField] private EnemyView enemyPrefab;
-        [SerializeField] private TowerView towerPrefab;
         [SerializeField] private ProjectileView projectilePrefab;
         [Header("Roots")]
         [SerializeField] private Transform enemyRoot;
@@ -20,20 +19,19 @@ namespace Game.Core
         [SerializeField] private Transform projectileRoot;
         [Header("Configs")]
         [SerializeField] private WaveConfigSO waveConfig;
+        [SerializeField] private TowerCatalogSO towerCatalog;
         private GameContext _ctx;
         public GameContext Context => _ctx;
         private void Awake()
         {
             _ctx = new GameContext();
-            _ctx.Init(enemyPrefab, enemyRoot, towerPrefab, towerRoot, projectilePrefab, projectileRoot, waveConfig);
+            _ctx.Init(enemyPrefab, enemyRoot,
+                towerRoot,
+                projectilePrefab, projectileRoot,
+                waveConfig,
+                towerCatalog);
         }
-        public void Update()
-        {
-            _ctx.Tick(Time.deltaTime);
-        }
-        private void OnDestroy()
-        {
-            _ctx?.Dispose();
-        }
+        private void Update() => _ctx?.Tick(Time.deltaTime);
+        private void OnDestroy() => _ctx?.Dispose();
     }
 }
