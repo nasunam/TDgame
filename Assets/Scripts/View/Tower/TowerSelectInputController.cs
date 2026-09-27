@@ -21,7 +21,7 @@ namespace Game.Views
             if (gameLoop == null || gameLoop.Context == null) return;
             if (!Input.GetMouseButtonDown(0)) return;
             var ctx = gameLoop.Context;
-            if (EventSystem.current.IsPointerOverGameObject()) return;
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
             var ray = mainCamera.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out var hit, 1000f, towerLayer))
             {

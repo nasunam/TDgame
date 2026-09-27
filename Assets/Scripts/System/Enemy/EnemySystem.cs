@@ -65,11 +65,10 @@ namespace Game.Systems
             }
         }
         // 塔/子弹通过它造成伤害
-        public void ApplyDamage(EnemyData enemy, float damage)
+        public void ApplyDamage(EnemyData enemy, float damage, Vector3 impactDir)
         {
             if (enemy == null) return;
-            if (enemy.State == EnemyState.Dead) return;
-            if (enemy.State == EnemyState.ReachedEnd) return;
+            if (enemy.State != EnemyState.Moving) return;
             enemy.Hp -= damage;
             EventBus.Publish(new EnemyDamagedEvent
             {
@@ -77,7 +76,11 @@ namespace Game.Systems
                 Hp = enemy.Hp,
                 MaxHp = enemy.MaxHp
             });
-
+            EventBus.Publish(new EnemyHitEvent
+            {
+                Position = enemy.Position,
+                ImpactDir = impactDir
+            });
             if (enemy.Hp <= 0f)
             {
                 enemy.Hp = 0f;
@@ -85,7 +88,10 @@ namespace Game.Systems
                 EventBus.Publish(new EnemyKilledEvent
                 {
                     EnemyId = enemy.id,
-                    GoldReward = enemy.GoldReward
+                    GoldReward = enemy.GoldReward,
+                    Position = enemy.Position,
+                    Tint = enemy.Tint,
+                    ImpactDir = impactDir
                 });
             }
         }

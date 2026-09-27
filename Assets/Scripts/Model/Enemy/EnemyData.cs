@@ -22,6 +22,7 @@ namespace Game.Data
         public int GoldReward = 10; // 掉落金币数量
         public Vector3 Position;
         public Vector3 Forward; // 朝向
+        public Color Tint;
         public EnemyState State = EnemyState.Moving;
     }
 }

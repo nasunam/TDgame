@@ -15,32 +15,44 @@ namespace Game.Systems
 
         public BuildSystem(GameContext ctx, TowerCatalogSO catalog) { _ctx = ctx; _catalog = catalog; }
 
-        public bool TryBuild(Vector3 position, string configId)
+        public bool CanBuild(Vector3 position, string configId, out string reason)
         {
-            if (!_ctx.GameStateModel.IsPlaying) return false;
+            if (!_ctx.GameStateModel.IsPlaying) { reason = "not_playing"; return false; }
             var cfg = _catalog.Get(configId);
-            if (cfg == null)
-            {
-                Debug.LogWarning($"[BuildSystem] 未知塔配置: {configId}");
-                return false;
-            }
-            // 距离检测：与已有塔太近
+            if (cfg == null) { reason = "unkonwn_config"; return false; }
             var towers = _ctx.TowerModel.All;
             for (int i = 0; i < towers.Count; i++)
             {
                 if ((towers[i].Position - position).sqrMagnitude < MinTowerSpacingSq)
                 {
-                    EventBus.Publish(new UiToastEvent { Message = "位置已被占用" });
-                    EventBus.Publish(new BuildFailedEvent { Reason = "occupied" });
+                    reason = "occupied";
                     return false;
                 }
             }
-            if (!_ctx.EconomySystem.SpendGold(cfg.BuildCost))
+            if (_ctx.EconomyModel.Gold < cfg.BuildCost)
             {
-                EventBus.Publish(new UiToastEvent { Message = $"金币不足（需 {cfg.BuildCost}）" });
-                EventBus.Publish(new BuildFailedEvent { Reason = "gold" });
+                reason = "gold";
                 return false;
             }
+            reason = null;
+            return true;
+        }
+        public bool TryBuild(Vector3 position, string configId)
+        {
+            if (!CanBuild(position, configId, out var reason))
+            {
+                string msg = reason switch
+                {
+                    "occupied" => "位置已被占用",
+                    "gold" => $"金币不足（需 {_catalog.Get(configId)?.BuildCost}）",
+                    _ => "无法建造"
+                };
+                EventBus.Publish(new UiToastEvent { Message = msg });
+                EventBus.Publish(new BuildFailedEvent { Reason = reason });
+                return false;
+            }
+            var cfg = _catalog.Get(configId);
+            _ctx.EconomySystem.SpendGold(cfg.BuildCost);
             var level0 = cfg.Levels[0];
             var tower = new TowerData
             {

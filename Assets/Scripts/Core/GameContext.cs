@@ -21,10 +21,12 @@ namespace Game.Core
         public ProjectileModel ProjectileModel;
         // 2. Services
         public PathService PathService;
+        public TimeScaleService TimeScaleService;
         // 3, View Factory
         public EnemyViewFactory EnemyViewFactory;
         public TowerViewFactory TowerViewFactory;
         public ProjectileViewFactory ProjectileViewFactory;
+        public GhostFactory GhostFactory;
         // 4. Systems
         public EnemySystem EnemySystem;
         public WaveSystem WaveSystem;
@@ -34,15 +36,21 @@ namespace Game.Core
         public EconomySystem EconomySystem;
         public BuildSystem BuildSystem;
         public TowerSelectionSystem TowerSelectionSystem;
+        public BuildDragSystem BuildDragSystem;
+        // 5. Config
+        public TowerCatalogSO TowerCatalog;
         // 初始化
         public void Init(
             EnemyView enemyPrefab, Transform enemyRoot,
-            Transform towerRoot,
             ProjectileView projectilePrefab, Transform projectileRoot,
+            Transform towerRoot, Transform ghostRoot,
             WaveConfigSO waveConfig,
-            TowerCatalogSO towerCatalog)
+            TowerCatalogSO towerCatalog,
+            Material ghostValidMat, Material ghostInvalidMat,
+            Camera gameCamera, LayerMask groundLayer)
         {
             Current = this;
+            TowerCatalog = towerCatalog;
             // Models
             EnemyModel = new EnemyModel();
             CoreModel = new CoreModel(maxHp: 20);
@@ -53,10 +61,12 @@ namespace Game.Core
             // Services
             PathService = new PathService();
             PathService.BuildFromScene();
+            TimeScaleService = new TimeScaleService();
             // View Factories
             EnemyViewFactory = new EnemyViewFactory(enemyPrefab, enemyRoot);
             TowerViewFactory = new TowerViewFactory(towerRoot);
             ProjectileViewFactory = new ProjectileViewFactory(projectilePrefab, projectileRoot);
+            GhostFactory = new GhostFactory(ghostValidMat, ghostInvalidMat, ghostRoot);
             // Systems
             EnemySystem = new EnemySystem(this);
             WaveSystem = new WaveSystem(this, waveConfig);
@@ -66,6 +76,7 @@ namespace Game.Core
             EconomySystem = new EconomySystem(EconomyModel);
             BuildSystem = new BuildSystem(this, towerCatalog);
             TowerSelectionSystem = new TowerSelectionSystem(this);
+            BuildDragSystem = new BuildDragSystem(this, gameCamera, groundLayer);
         }
         public void Tick(float dt)
         {
@@ -77,6 +88,7 @@ namespace Game.Core
         }
         public void Dispose()
         {
+            TimeScaleService?.Reset();
             CoreSystem?.Dispose();
             EconomySystem?.Dispose();
             TowerSelectionSystem?.Dispose();

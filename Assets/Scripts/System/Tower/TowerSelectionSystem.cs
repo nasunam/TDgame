@@ -9,8 +9,7 @@ using Game.Models;
 namespace Game.Systems
 {
     /// <summary>
-    /// 管理"当前选中哪座塔"。事件驱动，不需要 Tick。
-    /// 发布：TowerSelectedEvent / TowerDeselectedEvent
+    /// 管理"当前选中哪座塔"。选中 → 游戏减速 + 弹面板。
     /// </summary>
     public class TowerSelectionSystem
     {
@@ -29,13 +28,16 @@ namespace Game.Systems
         public void Select(int towerId)
         {
             if (Model.SelectedTowerId == towerId) return;
+            if (Model.HasSelection) return;
             Model.SelectedTowerId = towerId;
+            _ctx.TimeScaleService.RequestSlow();
             EventBus.Publish(new TowerSelectedEvent { TowerId = towerId });
         }
         public void Deselect()
         {
             if (!Model.HasSelection) return;
             Model.SelectedTowerId = -1;
+            _ctx.TimeScaleService.ReleaseSlow();
             EventBus.Publish(new TowerDeselectedEvent());
         }
         public TowerData GetSelected()

@@ -115,6 +115,7 @@ namespace Game.Systems
                 MaxHp = cfg.Hp,
                 CoreDamage = cfg.CoreDamage,
                 GoldReward = cfg.GoldReward,
+                Tint = cfg.Tint,
                 State = EnemyState.Moving,
             };
             data.Position = route.Evaluate(0f, out data.Forward);

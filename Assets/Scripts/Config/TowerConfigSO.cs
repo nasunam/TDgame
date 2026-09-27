@@ -10,7 +10,7 @@ namespace Game.Config
     {
         public string Id = "basic_tower";
         public string DisplayName = "Basic Tower";
-        public int BuildCost = 100;
+        public int BuildCost = 50;
         public GameObject ViewPrefab;
         [Tooltip("索引 0 = 一级塔，索引 1 = 二级塔，依次类推")]
         public List<TowerLevel> Levels = new();

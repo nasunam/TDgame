@@ -10,13 +10,12 @@ using UnityEngine.UI;
 namespace Game.Views
 {
     /// <summary>
-    /// 塔详情面板。订阅选中事件显示/隐藏，
+    /// 塔详情面板。订阅选中事件显示/隐藏，(叠在黑色蒙罩上）
     /// 按钮点击调 TowerSystem.Upgrade / Sell —— 自己不修改任何数据。
     /// </summary>
     public class TowerInfoPanelView : MonoBehaviour
     {
         [SerializeField] private GameLoop gameLoop;
-        [SerializeField] private GameObject panelRoot;
         [Header("Texts")]
         [SerializeField] private TextMeshProUGUI titleText;
         [SerializeField] private TextMeshProUGUI statsText;
@@ -38,7 +37,6 @@ namespace Game.Views
             EventBus.Subscribe<GoldChangedEvent>(OnGoldChanged);
             upgradeButton.onClick.AddListener(OnUpgradeClicked);
             sellButton.onClick.AddListener(OnSellClicked);
-            panelRoot.SetActive(false);
         }
         private void OnDisable()
         {
@@ -50,10 +48,10 @@ namespace Game.Views
             sellButton.onClick.RemoveListener(OnSellClicked);
         }
         // 事件处理
-        private void OnSelected(TowerSelectedEvent e) { Refresh(); panelRoot.SetActive(true); }
-        private void OnDeselected(TowerDeselectedEvent e) => panelRoot.SetActive(false);
+        private void OnSelected(TowerSelectedEvent e) { Refresh();}
+        private void OnDeselected(TowerDeselectedEvent e) { /* 由 Overlay 控制显隐 */ }
         private void OnUpgraded(TowerUpgradedEvent e) { Refresh(); }
-        private void OnGoldChanged(GoldChangedEvent e) { RefreshUpgradeAffordability(); }
+        private void OnGoldChanged(GoldChangedEvent e) { if (gameObject.activeInHierarchy) Refresh(); }
         // 按钮回调
         private void OnUpgradeClicked()
         {
@@ -75,7 +73,7 @@ namespace Game.Views
             var ctx = Ctx;
             if (ctx == null) return;
             var tower = ctx.TowerSelectionSystem.GetSelected();
-            if (tower == null) { panelRoot.SetActive(false); return; }
+            if (tower == null) return;
             titleText.text = $"{tower.Config.DisplayName}  Lv.{tower.LevelIndex + 1}";
             statsText.text =
                 $"Damage : {tower.Damage}\n" +
@@ -98,11 +96,6 @@ namespace Game.Views
                 invested += tower.Config.Levels[i].UpgradeCost;
             int refund = Mathf.FloorToInt(invested * 0.7f);
             sellButtonText.text = $"Sell ({refund})";
-        }
-        private void RefreshUpgradeAffordability()
-        {
-            if (!panelRoot.activeSelf) return;
-            Refresh();
         }
     }
 }

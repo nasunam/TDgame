@@ -34,8 +34,9 @@ namespace Game.Systems
                 if (dist <= step)
                 {
                     // 命中
+                    Vector3 impactDir = (target.Position - p.Position).normalized;
                     p.Position = target.Position;
-                    _ctx.EnemySystem.ApplyDamage(target, p.Damage);
+                    _ctx.EnemySystem.ApplyDamage(target, p.Damage, impactDir);
                     _ctx.ProjectileViewFactory.Remove(p.Id);
                     projectiles.RemoveAt(i);
                 }
